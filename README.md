@@ -1,1 +1,1 @@
-# SSmart-Attendance-Management-System
+# Smart-Attendance-Management-System
