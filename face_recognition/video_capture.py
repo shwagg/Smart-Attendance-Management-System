@@ -1,7 +1,14 @@
 import cv2
+from facerecognition import SimpleFacerec
+
+# encode faces from a folder
+sfr = SimpleFacerec()
+sfr.load_encoding_images("images/")
+
 
 #pre-trained model daw na ginagamit for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 
 
 cap = cv2.VideoCapture(0)
