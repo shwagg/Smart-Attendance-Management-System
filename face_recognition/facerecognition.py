@@ -3,6 +3,7 @@ import cv2
 import os
 import glob
 import numpy as np
+import pickle
 
 class SimpleFacerec:
     def __init__(self):
@@ -19,7 +20,7 @@ class SimpleFacerec:
         subfolders = [os.path.join(images_path, f) for f in os.listdir(images_path) if os.path.isdir(os.path.join(images_path, f))]
 
         for folder in subfolders:
-            name = os.path.basename(folder)  # Folder name = person's name
+            name = os.path.basename(folder)
             images = glob.glob(os.path.join(folder, "*.*"))
 
             print(f"{len(images)} images found for {name}.")
@@ -36,8 +37,17 @@ class SimpleFacerec:
                     print(f"Encoding complete for {name} - {os.path.basename(img_path)}")
                 else:
                     print(f"No face found in {img_path}, skipping.")
-        if name not in self.known_face_names:
-            print(f"No valid encodings found for {name}, check dataset images.")
+            if name not in self.known_face_names:
+                print(f"No valid encodings found for {name}, check dataset images.")
+
+        with open("encodings.dat", "wb") as f:
+            pickle.dump({
+                "encodings": self.known_face_encodings,
+                "names": self.known_face_names
+            }, f)
+        print("Encodings saved to encodings.dat")
+        
+
 
     def detect_known_faces(self, frame):
         """
@@ -64,7 +74,6 @@ class SimpleFacerec:
 
             face_names.append(name)
 
-        # Scale back up face locations since the frame we detected in was scaled
         face_locations = [(int(top / self.frame_resizing), int(right / self.frame_resizing),
                            int(bottom / self.frame_resizing), int(left / self.frame_resizing)) 
                           for (top, right, bottom, left) in face_locations]
