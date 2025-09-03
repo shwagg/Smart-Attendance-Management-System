@@ -1,10 +1,17 @@
 import cv2
 import face_recognition
 from load_encodings import load_face_encodings
+from facerecognition import SimpleFacerec
+
+# encode faces from a folder
+sfr = SimpleFacerec()
+sfr.load_encoding_images("images/")
+
 
 # Load pre-trained face detection model
 face_cascade = cv2.CascadeClassifier('face_recognition\\haarcascades\\haarcascade_frontalface_default.xml')# Load the face encodings and names from your saved file
 known_face_encodings, known_face_names = load_face_encodings()
+
 
 cap = cv2.VideoCapture(0)
 
