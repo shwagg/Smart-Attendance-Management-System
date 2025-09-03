@@ -10,30 +10,34 @@ class SimpleFacerec:
         self.known_face_names = []
         self.frame_resizing = 0.25   # resize for faster recognition
 
-    def load_encoding_images(self, images_path):
+    def load_encoding_images(self, images_path="dataset/"):
         """
-        Load encoding images from the given folder.
-        Each image file name should be the person's name.
+        Load encoding images from the dataset folder.
+        Each subfolder name is the person's name,
+        and multiple images per person are supported.
         """
-        images_path = glob.glob(os.path.join(images_path, "*.*"))
+        subfolders = [os.path.join(images_path, f) for f in os.listdir(images_path) if os.path.isdir(os.path.join(images_path, f))]
 
-        print(f"{len(images_path)} encoding images found.")
+        for folder in subfolders:
+            name = os.path.basename(folder)  # Folder name = person's name
+            images = glob.glob(os.path.join(folder, "*.*"))
 
-        for img_path in images_path:
-            img = cv2.imread(img_path)
-            rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            print(f"{len(images)} images found for {name}.")
 
-            # Get filename as name
-            basename = os.path.basename(img_path)
-            (filename, ext) = os.path.splitext(basename)
-            name = filename
+            for img_path in images:
+                img = cv2.imread(img_path)
+                rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            # Encode only first face found in the image
-            img_encoding = face_recognition.face_encodings(rgb_img)[0]
-
-            self.known_face_encodings.append(img_encoding)
-            self.known_face_names.append(name)
-            print(f"Encoding complete for {name}")
+                encodings = face_recognition.face_encodings(rgb_img)
+                if len(encodings) > 0:
+                    img_encoding = encodings[0]
+                    self.known_face_encodings.append(img_encoding)
+                    self.known_face_names.append(name)
+                    print(f"Encoding complete for {name} - {os.path.basename(img_path)}")
+                else:
+                    print(f"No face found in {img_path}, skipping.")
+        if name not in self.known_face_names:
+            print(f"No valid encodings found for {name}, check dataset images.")
 
     def detect_known_faces(self, frame):
         """
